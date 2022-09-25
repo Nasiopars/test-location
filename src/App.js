@@ -1,20 +1,23 @@
 
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useRef} from 'react';
 import './App.css';
 import '../node_modules/leaflet/dist/leaflet.css'
-import '../node_modules/leaflet/dist/images/marker-icon.png'
+import icon from '../node_modules/leaflet/dist/images/marker-icon.png';
 import axios from 'axios';
 import { MapContainer, TileLayer,Marker,Popup } from 'react-leaflet'
+import L from 'leaflet';
 
 const API_ENDPOINT = "https://tapi.cveh.ir/v1/drivers/locations"
 const API_KEY = "Bearer 93|8|5YOtJC0R6iowjJ9Q7vbkMmuqnDUGeb3jK1N"
 
 function App() {
-
   const [latitude,setLatitude] = useState(35.500);
   const [longitude,setLongitude] = useState(51,500);
   const [keepTimestamp,setKeepTimestamp] = useState(null);
   const [points,setPoints] = useState([]);
+  const position = [latitude,longitude]; 
+
+  // const mapRef = useRef()
  
   // convert stamp to jalali
   useEffect(()=>{
@@ -23,6 +26,13 @@ function App() {
     let makeTime = makeDate.toLocaleTimeString([],{hour: '2-digit', minute:'2-digit',second:'2-digit'})
     console.log(persianDate,makeTime);
   },[keepTimestamp]);
+  
+  let DefaultIcon = L.icon({
+    iconUrl: icon,
+    iconSize: [30, 42],
+    iconAnchor: [15,21]
+  });
+  L.Marker.prototype.options.icon = DefaultIcon;
 
 // check support
   let resultSupport = ""
@@ -55,6 +65,7 @@ function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       getLocation();
+      // mapRef.flyTo(position)
     },3000);
     return () => clearInterval(interval);
   }, []);
@@ -82,9 +93,10 @@ function App() {
       console.log(error);
     });
   }
+  
 
-let report = [latitude,longitude] 
-console.log(report)
+
+console.log("poss",position)
 console.log(keepTimestamp)
 
   return (
@@ -97,9 +109,9 @@ console.log(keepTimestamp)
 
   
       <MapContainer 
-      
+      // ref={mapRef}
         style={{width:'100%',height:'100vh'}} 
-        center={[latitude,longitude]}
+        center={position}
         zoom={15} 
         scrollWheelZoom={true}
         zoomControl={true}
@@ -109,9 +121,13 @@ console.log(keepTimestamp)
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <Marker position={[latitude,longitude]}>
+        <Marker icon={DefaultIcon} position={position}>
             <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
+              <ul>
+                <li>latitute : {latitude}</li>
+                <li>longitude: {longitude}</li>
+                <li>time : {keepTimestamp}</li>
+              </ul>
             </Popup>
           </Marker>
   
