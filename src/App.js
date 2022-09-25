@@ -99,7 +99,7 @@ console.log(keepTimestamp)
       <MapContainer 
       
         style={{width:'100%',height:'100vh'}} 
-        center={[longitude,latitude]}
+        center={[latitude,longitude]}
         zoom={15} 
         scrollWheelZoom={true}
         zoomControl={true}
